@@ -21,6 +21,23 @@ def get_db():
 def serve_home():
     return FileResponse("index.html")
     
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
+
+    db = SessionLocal()
+
+    if db.query(models.Character).first() is None:
+        db.add(models.Character(
+            name="Rimuru Tempest",
+            title="Demon Lord",
+            description="Slime turned strongest being",
+            category="Demon Lord"
+        ))
+        db.commit()
+
+    db.close()
+    
 # 1️⃣ Get All Characters
 @app.get("/characters")
 def get_characters(db: Session = Depends(get_db)):
