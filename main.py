@@ -3,9 +3,12 @@ from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from fastapi.middleware.cors import CORSMiddleware
+from models import Base
+from database import engine
 import models
 
 app = FastAPI(title="Tensura Fanbase API")
+Base.metadata.create_all(bind=engine)
 
 # Dependency
 def get_db():
@@ -21,7 +24,10 @@ def serve_home():
 # 1️⃣ Get All Characters
 @app.get("/characters")
 def get_characters(db: Session = Depends(get_db)):
-    return db.query(models.Character).all()
+       try:
+        return db.query(models.Character).all()
+    except Exception as e:
+        return {"error": str(e)}
 
 # 2️⃣ Get Specific Character
 @app.get("/characters/{character_id}")
@@ -38,7 +44,11 @@ def get_character(character_id: int, db: Session = Depends(get_db)):
 # 3️⃣ Get Actors
 @app.get("/actors")
 def get_actors(db: Session = Depends(get_db)):
-    return db.query(models.Actor).all()
+    try:
+        return db.query(models.Character).all()
+    except Exception as e:
+        return {"error": str(e)}
+
 
 app.add_middleware(
     CORSMiddleware,
