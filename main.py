@@ -24,7 +24,7 @@ def serve_home():
 # 1️⃣ Get All Characters
 @app.get("/characters")
 def get_characters(db: Session = Depends(get_db)):
-       try:
+    try:
         return db.query(models.Character).all()
     except Exception as e:
         return {"error": str(e)}
