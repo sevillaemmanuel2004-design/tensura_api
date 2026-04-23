@@ -74,12 +74,21 @@ def get_characters(db: Session = Depends(get_db)):
 
 @app.get("/characters/{character_id}")
 def get_character(character_id: int, db: Session = Depends(get_db)):
-    char = db.query(models.Character).filter(models.Character.id == character_id).first()
+    character = db.query(models.Character).filter(
+        models.Character.id == character_id
+    ).first()
 
-    if not char:
+    if not character:
         raise HTTPException(status_code=404, detail="Character not found")
 
-    return char
+    return {
+        "id": character.id,
+        "name": character.name,
+        "title": character.title,
+        "description": character.description,
+        "category": character.category,
+        "actor_id": character.actor_id
+    }
 
 # --------------------------
 # ACTORS (FIXED)
