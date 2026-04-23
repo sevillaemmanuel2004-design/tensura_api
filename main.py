@@ -1,14 +1,25 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from database import SessionLocal
 from fastapi.middleware.cors import CORSMiddleware
+
+from database import SessionLocal, engine
 from models import Base
-from database import engine
 import models
 
 app = FastAPI(title="Tensura Fanbase API")
+
+# ✅ Create tables ONCE (safe place)
 Base.metadata.create_all(bind=engine)
+
+# ✅ CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Dependency
 def get_db():
@@ -17,60 +28,63 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# Home
 @app.get("/")
 def serve_home():
     return FileResponse("index.html")
-    
+
+# ✅ Startup seeding (FIXED)
 @app.on_event("startup")
 def startup():
-    Base.metadata.create_all(bind=engine)
-
     db = SessionLocal()
 
-    if db.query(models.Character).first() is None:
-        db.add(models.Character(
-            name="Rimuru Tempest",
-            title="Demon Lord",
-            description="Slime turned strongest being",
-            category="Demon Lord"
-        ))
+    if db.query(models.Character).count() == 0:
+        db.add_all([
+            models.Character(
+                name="Rimuru Tempest",
+                title="Demon Lord",
+                description="Slime turned strongest being",
+                category="Demon Lord"
+            ),
+            models.Character(
+                name="Milim Nava",
+                title="Destroyer",
+                description="One of the oldest Demon Lords",
+                category="Demon Lord"
+            ),
+            models.Character(
+                name="Guy Crimson",
+                title="Primordial Red",
+                description="Strongest Demon Lord",
+                category="Demon Lord"
+            )
+        ])
         db.commit()
 
     db.close()
-    
-# 1️⃣ Get All Characters
+
+# --------------------------
+# CHARACTERS
+# --------------------------
+
 @app.get("/characters")
 def get_characters(db: Session = Depends(get_db)):
-    try:
-        return db.query(models.Character).all()
-    except Exception as e:
-        return {"error": str(e)}
+    return db.query(models.Character).all()
 
-# 2️⃣ Get Specific Character
 @app.get("/characters/{character_id}")
 def get_character(character_id: int, db: Session = Depends(get_db)):
-    character = db.query(models.Character).filter(
-        models.Character.id == character_id
-    ).first()
+    char = db.query(models.Character).filter(models.Character.id == character_id).first()
 
-    if not character:
+    if not char:
         raise HTTPException(status_code=404, detail="Character not found")
 
-    return character
+    return char
 
-# 3️⃣ Get Actors
+# --------------------------
+# ACTORS (FIXED)
+# --------------------------
+
 @app.get("/actors")
 def get_actors(db: Session = Depends(get_db)):
-    try:
-        return db.query(models.Character).all()
-    except Exception as e:
-        return {"error": str(e)}
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # or restrict later
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    return db.query(models.Actor).all()
