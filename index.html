@@ -1,51 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Tensura Fanbase</title>
-</head>
 <body>
 
-    <h1>Tensura Characters</h1>
-    <button onclick="loadCharacters()">Load Characters</button>
+<h1>Test API</h1>
 
-    <ul id="characterList"></ul>
+<button onclick="test()">Click me</button>
 
-    <h1>Actors</h1>
-    <button onclick="loadActors()">Load Actors</button>
-
-    <ul id="actorList"></ul>
-
-    <script>
-        const API_URL = "https://tensura-api.onrender.com";
-
-        async function loadCharacters() {
-            const response = await fetch(`${API_URL}/characters`);
-            const data = await response.json();
-
-            const list = document.getElementById("characterList");
-            list.innerHTML = "";
-
-            data.forEach(char => {
-                const li = document.createElement("li");
-                li.textContent = `${char.name} - ${char.title}`;
-                list.appendChild(li);
-            });
-        }
-
-        async function loadActors() {
-            const response = await fetch(`${API_URL}/actors`);
-            const data = await response.json();
-
-            const list = document.getElementById("actorList");
-            list.innerHTML = "";
-
-            data.forEach(actor => {
-                const li = document.createElement("li");
-                li.textContent = `${actor.name} (${actor.nationality})`;
-                list.appendChild(li);
-            });
-        }
-    </script>
+<script>
+function test() {
+    console.log("BUTTON WORKS");
+    alert("BUTTON WORKS");
+}
+</script>
 
 </body>
 </html>
