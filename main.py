@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import SessionLocal
+from fastapi.middleware.cors import CORSMiddleware
 import models
 
 app = FastAPI(title="Tensura Fanbase API")
@@ -34,3 +35,11 @@ def get_character(character_id: int, db: Session = Depends(get_db)):
 @app.get("/actors")
 def get_actors(db: Session = Depends(get_db)):
     return db.query(models.Actor).all()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or restrict later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
